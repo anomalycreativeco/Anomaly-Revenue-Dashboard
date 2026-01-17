@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Dashboard 2026 | Anomaly Creative</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #1a1a1a;
+            --accent: #ffffff;
+            --accent-warm: #f5f5f5;
+            --accent-gold: #FFD700;
+            --accent-green: #4CAF50;
+            --text: #ffffff;
+            --text-dim: #a0a0a0;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(76, 175, 80, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px var(--shadow);
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .stat-card {
+            grid-column: span 3;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .chart-card {
+            grid-column: span 6;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        .chart-card:nth-child(5) { animation-delay: 0.5s; }
+        .chart-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .full-width {
+            grid-column: span 12;
+            animation-delay: 0.7s;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .commission-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .commission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .commission-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .commission-item.pending {
+            opacity: 0.5;
+            border-left-color: var(--text-dim);
+        }
+
+        .commission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .commission-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .commission-expand-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+            color: var(--text-dim);
+        }
+
+        .commission-item.expanded .commission-expand-icon {
+            transform: rotate(90deg);
+        }
+
+        .commission-month {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .commission-person {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .commission-amount {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+
+        .commission-amount.pending {
+            color: var(--text-dim);
+        }
+
+        .commission-breakdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            margin-top: 0;
+        }
+
+        .commission-item.expanded .commission-breakdown {
+            max-height: 1000px;
+            margin-top: 1rem;
+        }
+
+        .client-commission {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .client-commission:last-child {
+            margin-bottom: 0;
+        }
+
+        .client-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .client-person {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .client-amount {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .client-amount.pending {
+            color: var(--text-dim);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 0.5rem;
+        }
+
+        .status-badge.collected {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .stat-card, .chart-card {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stat-card, .chart-card, .full-width {
+                grid-column: span 12;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Loading data from Google Sheets...</div>
+    </div>
+
+    <div class="container" id="dashboard" style="display: none;">
+        <header>
+            <div>
+                <h1>Revenue Dashboard</h1>
+                <div class="subtitle">Anomaly Creative & Co. • 2026</div>
+            </div>
+            <button class="refresh-btn" onclick="loadData()">
+                ↻ Refresh Data
+            </button>
+        </header>
+
+        <div id="error"></div>
+
+        <div class="grid">
+            <!-- Key Stats -->
+            <div class="card stat-card">
+                <div class="card-title">Total Projected Revenue</div>
+                <div class="stat-value" id="totalRevenue">$0</div>
+                <div class="stat-label">Annual Deal Value</div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="card-title">Total Commissions Eligible</div>
+                <div class="stat-value" id="totalCommission">$0</div>
+                <div class="stat-label">Payment Collected Only</div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="card-title">Active Clients</div>
+                <div class="stat-value" id="clientCount">0</div>
+                <div class="stat-label" id="clientNames">Loading...</div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="card-title">Avg Monthly Revenue</div>
+                <div class="stat-value" id="avgRevenue">$0</div>
+                <div class="stat-label">Across All Projects</div>
+            </div>
+
+            <!-- Monthly Revenue Chart -->
+            <div class="card chart-card">
+                <div class="card-title">Monthly Revenue Breakdown</div>
+                <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+
+            <!-- Industry Revenue -->
+            <div class="card chart-card">
+                <div class="card-title">Revenue by Industry</div>
+                <canvas id="industryChart"></canvas>
+            </div>
+
+            <!-- Services Distribution -->
+            <div class="card chart-card">
+                <div class="card-title">Client Service Distribution</div>
+                <canvas id="servicesChart"></canvas>
+            </div>
+
+            <!-- Client Revenue Contribution -->
+            <div class="card chart-card">
+                <div class="card-title">Client Revenue Contribution</div>
+                <canvas id="clientRevenueChart"></canvas>
+            </div>
+
+            <!-- Commission Tracker -->
+            <div class="card full-width">
+                <div class="card-title">Commission Tracker 2026</div>
+                <div class="commission-list" id="commissionList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script>
+        // Google Sheets Configuration
+        const SHEET_ID = '1fE8BPNwg4eR10It5qTu2AEMsybZXcmsXnnDJPvwIbq4';
+        const SHEET_NAME = 'TEST';
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+        let charts = {
+            monthly: null,
+            industry: null,
+            services: null,
+            clients: null
+        };
+
+        Chart.defaults.color = '#a0a0a0';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        async function fetchSheetData() {
+            try {
+                const response = await fetch(SHEET_URL);
+                const text = await response.text();
+                
+                // Google Sheets returns JSONP, we need to extract the JSON
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                
+                const rows = json.table.rows;
+                
+                // Transform to our data format (skipping header row)
+                return rows.slice(1).map(row => {
+                    const cells = row.c;
+                    return {
+                        client: cells[0]?.v || '',
+                        projectName: cells[1]?.v || '',
+                        month: cells[2]?.v || '',
+                        deal: parseFloat(cells[3]?.v) || 0,
+                        industry: cells[4]?.v || '',
+                        service: cells[5]?.v || '',
+                        collected: cells[6]?.v === true || cells[6]?.v === 'TRUE' || cells[6]?.v === 'true',
+                        person: cells[7]?.v || '',
+                        commission: parseFloat(cells[8]?.v) || 0
+                    };
+                }).filter(item => item.client); // Filter out empty rows
+            } catch (error) {
+                console.error('Error fetching from Google Sheets:', error);
+                throw error;
+            }
+        }
+
+        async function loadData() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('error').innerHTML = '';
+
+                const data = await fetchSheetData();
+                
+                if (data.length === 0) {
+                    throw new Error('No data found in Google Sheets. Please make sure your sheet has data.');
+                }
+
+                console.log('Loaded records:', data.length);
+                renderDashboard(data);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('error').innerHTML = `
+                    <div class="error-message">
+                        <strong>Error loading data:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function renderDashboard(data) {
+            // Calculate statistics
+            const totalRevenue = data.reduce((sum, item) => sum + item.deal, 0);
+            const totalCommissionEligible = data.filter(item => item.collected && item.person).reduce((sum, item) => sum + item.commission, 0);
+            const uniqueClients = [...new Set(data.map(item => item.client))];
+            const monthlyRevenue = {};
+            data.forEach(item => {
+                const month = item.month.split('-')[0];
+                monthlyRevenue[month] = (monthlyRevenue[month] || 0) + item.deal;
+            });
+            const avgRevenue = Object.values(monthlyRevenue).reduce((a, b) => a + b, 0) / Object.keys(monthlyRevenue).length;
+
+            // Update stats
+            document.getElementById('totalRevenue').textContent = `$${(totalRevenue / 1000).toFixed(1)}K`;
+            document.getElementById('totalCommission').textContent = `$${totalCommissionEligible.toLocaleString()}`;
+            document.getElementById('clientCount').textContent = uniqueClients.length;
+            document.getElementById('clientNames').textContent = `${uniqueClients.slice(0, 3).join(', ')}${uniqueClients.length > 3 ? '...' : ''}`;
+            document.getElementById('avgRevenue').textContent = `$${(avgRevenue / 1000).toFixed(1)}K`;
+
+            // Render charts
+            renderMonthlyChart(monthlyRevenue);
+            renderIndustryChart(data);
+            renderServicesChart(data);
+            renderClientChart(data);
+            renderCommissionList(data);
+        }
+
+        function renderMonthlyChart(monthlyRevenue) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthlyRevenueData = months.map(m => monthlyRevenue[m] || 0);
+
+            if (charts.monthly) charts.monthly.destroy();
+
+            charts.monthly = new Chart(document.getElementById('monthlyRevenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Monthly Revenue',
+                        data: monthlyRevenueData,
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: (context) => `$${context.parsed.y.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `$${value / 1000}K`
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderIndustryChart(data) {
+            const industryRevenue = {};
+            data.forEach(item => {
+                industryRevenue[item.industry] = (industryRevenue[item.industry] || 0) + item.deal;
+            });
+
+            const industryColors = [
+                'rgba(76, 175, 80, 0.9)',
+                'rgba(33, 150, 243, 0.9)',
+                'rgba(255, 193, 7, 0.9)',
+                'rgba(156, 39, 176, 0.9)',
+                'rgba(255, 87, 34, 0.9)'
+            ];
+
+            if (charts.industry) charts.industry.destroy();
+
+            charts.industry = new Chart(document.getElementById('industryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(industryRevenue),
+                    datasets: [{
+                        data: Object.values(industryRevenue),
+                        backgroundColor: industryColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: (context) => {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: $${context.parsed.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderServicesChart(data) {
+            const individualServices = {};
+            const uniqueClientServices = {};
+            
+            data.forEach(item => {
+                const key = `${item.client}-${item.service}`;
+                if (!uniqueClientServices[key]) {
+                    uniqueClientServices[key] = true;
+                    
+                    const serviceString = item.service ? String(item.service) : '';
+                    const services = serviceString.split(',').map(s => s.trim()).filter(s => s);
+                    
+                    services.forEach(service => {
+                        individualServices[service] = (individualServices[service] || 0) + 1;
+                    });
+                }
+            });
+
+            const serviceColors = [
+                'rgba(76, 175, 80, 0.9)',
+                'rgba(33, 150, 243, 0.9)',
+                'rgba(255, 193, 7, 0.9)',
+                'rgba(156, 39, 176, 0.9)',
+                'rgba(255, 87, 34, 0.9)',
+                'rgba(0, 188, 212, 0.9)',
+                'rgba(233, 30, 99, 0.9)',
+                'rgba(121, 85, 72, 0.9)'
+            ];
+
+            if (charts.services) charts.services.destroy();
+
+            charts.services = new Chart(document.getElementById('servicesChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(individualServices),
+                    datasets: [{
+                        data: Object.values(individualServices),
+                        backgroundColor: serviceColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 10 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: (context) => {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed} clients (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderClientChart(data) {
+            const clientRevenue = {};
+            data.forEach(item => {
+                clientRevenue[item.client] = (clientRevenue[item.client] || 0) + item.deal;
+            });
+
+            const clientColorPalette = [
+                'rgba(76, 175, 80, 0.9)', 'rgba(33, 150, 243, 0.9)', 'rgba(255, 193, 7, 0.9)',
+                'rgba(156, 39, 176, 0.9)', 'rgba(255, 87, 34, 0.9)', 'rgba(0, 188, 212, 0.9)',
+                'rgba(233, 30, 99, 0.9)', 'rgba(121, 85, 72, 0.9)', 'rgba(96, 125, 139, 0.9)',
+                'rgba(205, 220, 57, 0.9)', 'rgba(255, 152, 0, 0.9)', 'rgba(103, 58, 183, 0.9)',
+                'rgba(0, 150, 136, 0.9)', 'rgba(244, 67, 54, 0.9)', 'rgba(63, 81, 181, 0.9)',
+                'rgba(139, 195, 74, 0.9)', 'rgba(255, 235, 59, 0.9)', 'rgba(255, 64, 129, 0.9)',
+                'rgba(124, 179, 66, 0.9)', 'rgba(189, 189, 189, 0.9)', 'rgba(171, 71, 188, 0.9)',
+                'rgba(41, 182, 246, 0.9)', 'rgba(236, 64, 122, 0.9)', 'rgba(38, 166, 154, 0.9)',
+                'rgba(255, 112, 67, 0.9)', 'rgba(102, 187, 106, 0.9)', 'rgba(126, 87, 194, 0.9)',
+                'rgba(255, 167, 38, 0.9)', 'rgba(77, 182, 172, 0.9)', 'rgba(149, 117, 205, 0.9)'
+            ];
+
+            const clientColors = Object.keys(clientRevenue).map((_, i) => clientColorPalette[i % clientColorPalette.length]);
+
+            if (charts.clients) charts.clients.destroy();
+
+            charts.clients = new Chart(document.getElementById('clientRevenueChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(clientRevenue),
+                    datasets: [{
+                        data: Object.values(clientRevenue),
+                        backgroundColor: clientColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 9 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: (context) => {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: $${context.parsed.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCommissionList(data) {
+            const commissionList = document.getElementById('commissionList');
+            commissionList.innerHTML = '';
+            
+            const commissionsByMonth = {};
+
+            data.forEach(item => {
+                if (!item.person) return;
+                
+                if (!commissionsByMonth[item.month]) {
+                    commissionsByMonth[item.month] = {
+                        total: 0,
+                        eligible: 0,
+                        collected: false,
+                        clients: []
+                    };
+                }
+                
+                commissionsByMonth[item.month].total += item.commission;
+                commissionsByMonth[item.month].clients.push({
+                    name: item.client,
+                    person: item.person,
+                    amount: item.commission,
+                    collected: item.collected
+                });
+                
+                if (item.collected) {
+                    commissionsByMonth[item.month].eligible += item.commission;
+                    commissionsByMonth[item.month].collected = true;
+                }
+            });
+
+            const monthOrder = ['Jan-26', 'Feb-26', 'Mar-26', 'Apr-26', 'May-26', 'Jun-26', 
+                               'Jul-26', 'Aug-26', 'Sep-26', 'Oct-26', 'Nov-26', 'Dec-26'];
+
+            monthOrder.forEach(month => {
+                const info = commissionsByMonth[month];
+                if (info && info.clients.length > 0) {
+                    const div = document.createElement('div');
+                    div.className = 'commission-item' + (info.collected ? '' : ' pending');
+                    
+                    const allPeople = new Set();
+                    info.clients.forEach(client => {
+                        if (client.person) allPeople.add(client.person);
+                    });
+                    const peopleText = allPeople.size > 0 
+                        ? Array.from(allPeople).join(', ')
+                        : 'Not assigned';
+                    
+                    const statusBadge = info.collected 
+                        ? '<span class="status-badge collected">Collected</span>'
+                        : '<span class="status-badge pending">Pending</span>';
+                    
+                    const displayAmount = info.collected ? info.eligible : info.total;
+                    const amountClass = info.collected ? 'commission-amount' : 'commission-amount pending';
+                    
+                    let breakdownHTML = '<div class="commission-breakdown">';
+                    info.clients.forEach(client => {
+                        const clientAmountClass = client.collected ? 'client-amount' : 'client-amount pending';
+                        breakdownHTML += `
+                            <div class="client-commission">
+                                <div>
+                                    <div class="client-name">${client.name}</div>
+                                    <div class="client-person">${client.person || 'Not assigned'}</div>
+                                </div>
+                                <div class="${clientAmountClass}">$${client.amount.toLocaleString()}</div>
+                            </div>
+                        `;
+                    });
+                    breakdownHTML += '</div>';
+                    
+                    div.innerHTML = `
+                        <div class="commission-header">
+                            <div class="commission-left">
+                                <div class="commission-expand-icon">▶</div>
+                                <div>
+                                    <div class="commission-month">${month} ${statusBadge}</div>
+                                    <div class="commission-person">${info.clients.length} clients • ${peopleText}</div>
+                                </div>
+                            </div>
+                            <div class="${amountClass}">$${displayAmount.toLocaleString()}</div>
+                        </div>
+                        ${breakdownHTML}
+                    `;
+                    
+                    div.addEventListener('click', function(e) {
+                        if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+                            this.classList.toggle('expanded');
+                        }
+                    });
+                    
+                    commissionList.appendChild(div);
+                }
+            });
+        }
+
+        // Load data on page load
+        loadData();
+    </script>
+</body>
+</html>
